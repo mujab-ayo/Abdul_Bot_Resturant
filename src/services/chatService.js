@@ -49,8 +49,6 @@ async function getMenuItems() {
      `;
 }
 
-
-
 async function processInputedNumber(inputNumber, session) {
   const input = inputNumber.trim();
 
@@ -67,7 +65,7 @@ async function processInputedNumber(inputNumber, session) {
           status: "PENDING",
         }).populate("items.itemId");
 
-        if (!pendingOrders || pendingOrders.length === 0) {
+        if (!pendingOrders || pendingOrders.items.length === 0) {
           return `You have no pending orders to checkout. ${getMainMenu()}`;
         }
 
@@ -95,14 +93,13 @@ async function processInputedNumber(inputNumber, session) {
         break;
 
       case "98":
-        await session.save();
         const orderHistory = await Order.find({
           sessionId: session._id,
           status: { $in: ["PAID", "PLACED"] },
         }).populate("items.itemId");
 
-        if (!orderHistory || orderHistory.length === 0) {
-          return `No Order History Found`;
+        if (!orderHistory || orderHistory.items.length === 0) {
+          return `No Order History Found \n\n\n  ${getMainMenu()}`;
         }
 
         const history = orderHistory
@@ -135,7 +132,7 @@ async function processInputedNumber(inputNumber, session) {
         }).populate("items.itemId");
 
         if (!currentOrder || currentOrder.length === 0) {
-          return "You have no current order.";
+          return "You have no current order. \n\n\n  ${getMainMenu()}";
         }
 
         const items = currentOrder.items
@@ -154,7 +151,8 @@ async function processInputedNumber(inputNumber, session) {
           status: "PENDING",
         });
 
-        if (!orderToCancel) return "No order to cancel.\n\n";
+        if (!orderToCancel)
+          return "No order to cancel.\n\n\n  ${getMainMenu()}";
 
         orderToCancel.status = "CANCELLED";
         await orderToCancel.save();
