@@ -203,4 +203,7 @@ async function processInputedNumber(inputNumber, session) {
   }
 }
 
-module.exports = { processInputedNumber };
+module.exports = {
+  processInputedNumber,
+  getMainMenu
+};
