@@ -98,7 +98,7 @@ async function processInputedNumber(inputNumber, session) {
           status: { $in: ["PAID", "PLACED"] },
         }).populate("items.itemId");
 
-        if (!orderHistory || orderHistory.items.length === 0) {
+        if (!orderHistory || orderHistory.length === 0) {
           return `No Order History Found \n\n\n  ${getMainMenu()}`;
         }
 
@@ -131,8 +131,8 @@ async function processInputedNumber(inputNumber, session) {
           status: "PENDING",
         }).populate("items.itemId");
 
-        if (!currentOrder || currentOrder.length === 0) {
-          return "You have no current order. \n\n\n  ${getMainMenu()}";
+        if (!currentOrder || currentOrder.items.length === 0) {
+          return `You have no current order. \n\n\n  ${getMainMenu()}`;
         }
 
         const items = currentOrder.items
@@ -152,7 +152,7 @@ async function processInputedNumber(inputNumber, session) {
         });
 
         if (!orderToCancel)
-          return "No order to cancel.\n\n\n  ${getMainMenu()}";
+          return `No order to cancel.\n\n\n  ${getMainMenu()}`;
 
         orderToCancel.status = "CANCELLED";
         await orderToCancel.save();
@@ -172,9 +172,7 @@ async function processInputedNumber(inputNumber, session) {
 
     const menuIndex = parseInt(input);
     if (isNaN(menuIndex)) {
-      return (
-        "Invalid input. Please enter a number.\n\n" + (await getMenuItems())
-      );
+      return `Invalid input. Please enter a number.\n\n  ${await getMenuItems()}`;
     }
 
     const menuItem = await MenuItem.findOne({
@@ -182,10 +180,8 @@ async function processInputedNumber(inputNumber, session) {
       isAvailable: true,
     });
     if (!menuItem) {
-      return (
-        "Item not found. Please select a valid number.\n\n" +
-        (await getMenuItems())
-      );
+      return `Item not found. Please select a valid number.\n\n 
+        ${await getMenuItems()}`;
     }
 
     let order = await Order.findOne({
