@@ -79,10 +79,47 @@
   </head>
   <body>
     <div class="convo"></div>
-    <input type="text" id="userInput" placeholder="Type your message here..." />
-    <button id="sendBtn">Send</button>
-
+    <div class="input-area">
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Type your message here..."
+      />
+      <button id="sendBtn">Send</button>
+    </div>
     <script>
+      document.getElementById("sendBtn").addEventListener("click", handleSend);
+      document.getElementById("userInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleSend();
+      });
+
+      async function handleSend() {
+        const input = document.getElementById("userInput");
+        const userMessage = input.value.trim();
+        if (!userMessage) return;
+
+        displayMessage(userMessage, "user");
+        input.value = "";
+
+        const botReply = await fetchChat(userMessage);
+        displayMessage(botReply, "bot");
+      }
+
+      window.addEventListener("load", async () => {
+        const response = await fetch("/api/chat");
+        const data = await response.json();
+        displayMessage(data.message, "bot");
+      });
+
+      function displayMessage(text, sender) {
+        const convo = document.querySelector(".convo");
+        const bubble = document.createElement("div");
+        bubble.classList.add("bubble", sender);
+        bubble.innerText = text;
+        convo.appendChild(bubble);
+        convo.scrollTop = convo.scrollHeight;
+      }
+
       const fetchChat = async (userMessage) => {
         try {
           const response = await fetch("/api/chat/send-message", {

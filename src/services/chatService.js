@@ -45,7 +45,13 @@ async function getMenuItems() {
             ${side.sort().join("\n")}
 
         Drink:
-            ${drink.sort().join("\n")}
+            ${drink
+              .sort((a, b) => {
+                const indexA = parseInt(a.split(".")[0]);
+                const indexB = parseInt(b.split(".")[0]);
+                return indexA - indexB;
+              })
+              .join("\n")}
      `;
 }
 
