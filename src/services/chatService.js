@@ -1,6 +1,8 @@
 const MenuItem = require("../models/MenuItem");
 const Order = require("../models/Order");
 
+const { initializePayment } = require("./paystackService");
+
 function getMainMenu() {
   return `
         Welcome to Abdul_Bot_Resturant! Here is our main menu:
@@ -15,6 +17,12 @@ function getMainMenu() {
     
     `.trim();
 }
+
+const sortNumerically = (a, b) => {
+  const indexA = parseInt(a.split(".")[0]);
+  const indexB = parseInt(b.split(".")[0]);
+  return indexA - indexB;
+};
 
 async function getMenuItems() {
   const menuItems = await MenuItem.find({ isAvailable: true });
@@ -39,19 +47,13 @@ async function getMenuItems() {
 
   return `
         Main Dish:
-            ${mainDish.sort().join("\n")}
+            ${mainDish.sort(sortNumerically).join("\n")}
         
         Side Dish:
-            ${side.sort().join("\n")}
+            ${side.sort(sortNumerically).join("\n")}
 
         Drink:
-            ${drink
-              .sort((a, b) => {
-                const indexA = parseInt(a.split(".")[0]);
-                const indexB = parseInt(b.split(".")[0]);
-                return indexA - indexB;
-              })
-              .join("\n")}
+            ${drink.sort(sortNumerically).join("\n")}
      `;
 }
 
@@ -90,10 +92,14 @@ async function processInputedNumber(inputNumber, session) {
           )
           .join("\n");
 
-        return `Your order has been placed successfully! \n\n
-            
+        const authorizationUrl = await initializePayment(
+          total,
+          `${session.userId}@abdulbot.com`,
+          pendingOrders._id,
+        );
+
+        return `click the link to finalize payment! \n\n ${authorizationUrl} \n\n
             ${reciept} \nTotal: ₦${total} \n\n
-            
             Thank you for ordering with Abdul_Bot_Resturant.\n\n\n ${getMainMenu()}`;
 
         break;
@@ -211,5 +217,5 @@ async function processInputedNumber(inputNumber, session) {
 
 module.exports = {
   processInputedNumber,
-  getMainMenu
+  getMainMenu,
 };
