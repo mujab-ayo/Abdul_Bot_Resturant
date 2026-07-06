@@ -12,7 +12,7 @@ async function initializePayment(amount, email, orderId) {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer ${process.env.Paystack_Test_Secret_Key}`,
           "Content-Type": "application/json",
         },
       },
@@ -20,6 +20,7 @@ async function initializePayment(amount, email, orderId) {
 
     return response.data.data.authorization_url;
   } catch (error) {
+      console.error("Paystack error:", error.response?.data || error.message);
     throw new Error("Failed to initialize payment");
   }
 }
@@ -30,7 +31,7 @@ async function verifyPayment(reference) {
       `https://api.paystack.co/transaction/verify/${reference}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer ${process.env.Paystack_Test_Secret_Key}`,
         },
       },
     );

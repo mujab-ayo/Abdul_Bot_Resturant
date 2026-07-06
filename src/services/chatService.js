@@ -65,7 +65,10 @@ async function processInputedNumber(inputNumber, session) {
       case "1":
         session.currentState = "BROWSING_MENU";
         await session.save();
-        return await getMenuItems();
+
+        return { message: await getMenuItems() };
+
+        break;
 
       case "99":
         const pendingOrders = await Order.findOne({
@@ -74,7 +77,7 @@ async function processInputedNumber(inputNumber, session) {
         }).populate("items.itemId");
 
         if (!pendingOrders || pendingOrders.items.length === 0) {
-          return `You have no pending orders to checkout. ${getMainMenu()}`;
+          return{ message: `You have no pending orders to checkout. ${getMainMenu()}` };
         }
 
         const total = pendingOrders.items.reduce((sum, item) => {
@@ -98,9 +101,10 @@ async function processInputedNumber(inputNumber, session) {
           pendingOrders._id,
         );
 
-        return `click the link to finalize payment! \n\n ${authorizationUrl} \n\n
-            ${reciept} \nTotal: ₦${total} \n\n
-            Thank you for ordering with Abdul_Bot_Resturant.\n\n\n ${getMainMenu()}`;
+        return {
+          message: `Your order has been placed!\n\n${reciept}\nTotal: ₦${total}\n\nClick below to complete payment.\n\n${getMainMenu()}`,
+          paymentUrl: authorizationUrl,
+        };
 
         break;
 
@@ -111,7 +115,7 @@ async function processInputedNumber(inputNumber, session) {
         }).populate("items.itemId");
 
         if (!orderHistory || orderHistory.length === 0) {
-          return `No Order History Found \n\n\n  ${getMainMenu()}`;
+          return {message: `No Order History Found \n\n\n  ${getMainMenu()}`};
         }
 
         const history = orderHistory
@@ -133,7 +137,9 @@ async function processInputedNumber(inputNumber, session) {
           })
           .join("\n\n");
 
-        return `Order History: \n\n ${history}\n\n\n  ${getMainMenu()}`;
+        return {
+          message: `Order History: \n\n ${history}\n\n\n  ${getMainMenu()}`,
+        };
 
         break;
 
@@ -144,7 +150,7 @@ async function processInputedNumber(inputNumber, session) {
         }).populate("items.itemId");
 
         if (!currentOrder || currentOrder.items.length === 0) {
-          return `You have no current order. \n\n\n  ${getMainMenu()}`;
+          return {message: `You have no current order. \n\n\n  ${getMainMenu()}`};
         }
 
         const items = currentOrder.items
@@ -154,7 +160,9 @@ async function processInputedNumber(inputNumber, session) {
           )
           .join("\n");
 
-        return `Current Order:\n\n${items}\n\nTotal so far: ₦${currentOrder.totalPrice}\n\n\n ${getMainMenu()}`;
+        return {
+          message: `Current Order:\n\n${items}\n\nTotal so far: ₦${currentOrder.totalPrice}\n\n\n ${getMainMenu()}`,
+        };
         break;
 
       case "0":
@@ -164,27 +172,31 @@ async function processInputedNumber(inputNumber, session) {
         });
 
         if (!orderToCancel)
-          return `No order to cancel.\n\n\n  ${getMainMenu()}`;
+          return {
+            message: `No order to cancel.\n\n\n  ${getMainMenu()}`,
+          };
 
         orderToCancel.status = "CANCELLED";
         await orderToCancel.save();
-        return ` Order cancelled.\n\n\n  ${getMainMenu()}`;
+        return {
+          message: ` Order cancelled.\n\n\n  ${getMainMenu()}`,
+        };
 
         break;
 
       default:
-        return getMainMenu();
+        return {message: getMainMenu()};
     }
   } else if (session.currentState === "BROWSING_MENU") {
     if (input === "0") {
       session.currentState = "MAIN_MENU";
       await session.save();
-      return getMainMenu();
+      return {message: getMainMenu()};
     }
 
     const menuIndex = parseInt(input);
     if (isNaN(menuIndex)) {
-      return `Invalid input. Please enter a number.\n\n  ${await getMenuItems()}`;
+      return {message: `Invalid input. Please enter a number.\n\n  ${await getMenuItems()}`};
     }
 
     const menuItem = await MenuItem.findOne({
@@ -192,8 +204,8 @@ async function processInputedNumber(inputNumber, session) {
       isAvailable: true,
     });
     if (!menuItem) {
-      return `Item not found. Please select a valid number.\n\n 
-        ${await getMenuItems()}`;
+      return {message: `Item not found. Please select a valid number.\n\n 
+        ${await getMenuItems()}`};
     }
 
     let order = await Order.findOne({
@@ -211,7 +223,7 @@ async function processInputedNumber(inputNumber, session) {
       });
     }
 
-    return `${menuItem.name} added to your order!\n\nType another number to add more items.\nType 0 to go back to main menu.`;
+    return {message: `${menuItem.name} added to your order!\n\nType another number to add more items.\nType 0 to go back to main menu.`};
   }
 }
 

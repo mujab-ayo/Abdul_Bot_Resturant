@@ -10,7 +10,7 @@ async function sendMessage(req, res, next) {
 
     const response = await processInputedNumber(userInput, req.sessionData);
 
-    return res.json({ message: response });
+    return res.json(response );
   } catch (err) {
     return next(err);
   }
