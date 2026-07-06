@@ -8,11 +8,13 @@ const cookieParser = require("cookie-parser");
 
 const attachSession = require("./middleware/session");
 const chatRoutes = require("./routes/chatRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(attachSession);
+app.use("/api/payment", paymentRoutes);
 
 
 app.use("/api/chat", chatRoutes);
