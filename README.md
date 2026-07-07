@@ -10,7 +10,7 @@ A restaurant chatbot that allow our customers to browse a menu, place orders, an
 
 ![Chatbot Screenshot](./public/screenshot.png)
 
-🔗 [Live Demo](https://your-deployed-url.com)
+🔗 [Live Demo](https://abdul-bot-resturant.onrender.com)
 
 ## Features
 
