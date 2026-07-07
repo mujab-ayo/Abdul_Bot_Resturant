@@ -1,3 +1,4 @@
+require("dotenv").config();
 const axios = require("axios");
 
 async function initializePayment(amount, email, orderId) {
@@ -8,7 +9,7 @@ async function initializePayment(amount, email, orderId) {
         email,
         amount: amount * 100,
         reference: orderId.toString(),
-        callback_url: "http://localhost:3000/api/payment/callback",
+        callback_url: `${process.env.BASE_URL}/api/payment/callback`,
       },
       {
         headers: {
